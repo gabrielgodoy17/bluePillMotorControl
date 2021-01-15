@@ -65,10 +65,10 @@ double velocidadPulsos2 = 0, velocidadRPM2 = 0;
 //variables para control
 double error_vel_act = 0, error_vel_ant = 0;
 double error_vel_act2 = 0, error_vel_ant2 = 0;
-double velocidad_consigna=0;
-double velocidad_consigna2=0;
-float KP1 = 0, KI1 = 0, KD1 = 0;
-float KP2 = 0, KI2 = 0, KD2 = 0;
+double velocidad_consigna=25;
+double velocidad_consigna2=-25;
+float KP1 = 20, KI1 = 2, KD1 = 4;
+float KP2 = 20, KI2 = 2, KD2 = 4;
 
 double Ui_anterior=0, Ui_actual=0; // para control integral
 double Up=0;
@@ -115,8 +115,8 @@ void interpreteComando(){
 				/*codigo ascii de '+' = 43*/
 				if (buffer[2] == 43) {
 					stop1=0;
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
 					if (buffer[3]) {
 						consigna = atof(&buffer[3]);
 						if (consigna < 35) {
@@ -128,8 +128,8 @@ void interpreteComando(){
 					}
 					/*codigo ascii de '-' = 45*/
 				} else if (buffer[2] == 45) {
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 					stop1=0;
 					if (buffer[3]) {
 						consigna = atof(&buffer[3]);
@@ -156,8 +156,8 @@ void interpreteComando(){
 			if (buffer[2]) {
 				if (buffer[2] == 43) {
 					stop2=0;
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, 0);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
 					if (buffer[3]) {
 						consigna = atof(&buffer[3]);
 						if (consigna < 35) {
@@ -170,11 +170,13 @@ void interpreteComando(){
 					}
 				} else if (buffer[2] == 45) {
 					stop2=0;
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
-//					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, 1);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
 					if (buffer[3]) {
 						consigna = atof(&buffer[3]);
-						if (consigna < 35) {
+						if( consigna==0){
+							velocidad_consigna2=0;
+						}else if (consigna < 35) {
 							velocidad_consigna2 = -consigna;
 						} else {
 							velocidad_consigna2 = -35;
@@ -296,23 +298,29 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 			 *----------------  control motor 1
 			 */
 			error_vel_act = velocidad_consigna-velocidadRPM;
-			if(error_vel_act<0 ){
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
-			    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
-			}else if(error_vel_act>0){
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
-			   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-			}else if(error_vel_act ==0){
-				Ui_anterior=0;
+//			if(error_vel_act<0 ){
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+//			    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+//			}else if(error_vel_act>0){
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
+//			   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
+//			}
+			if(stop1==1){
+			  Ui_anterior=0;
 			}
-
 //			error_vel_acterror_vel_act);
 			Up=KP1 * error_vel_act;
-			Ui_actual=Ui_anterior + (KI1 * deltaT * error_vel_act);
+			Ui_actual=Ui_anterior + (KI1 * deltaT * error_vel_ant);
 			Ud=(KD1/ deltaT) * (error_vel_act-error_vel_ant);
-			duty_cycle_pid = (uint32_t) fabs(Up + Ui_actual + Ud);
-			if(duty_cycle_pid > 11250){
-				duty_cycle_pid=11250;
+			if(velocidad_consigna>0){
+				duty_cycle_pid = (uint32_t) fabs(duty_cycle_pid +(Up + Ui_actual + Ud));
+			}else if(velocidad_consigna<0){
+				duty_cycle_pid = (uint32_t) fabs(duty_cycle_pid -(Up + Ui_actual + Ud));
+			}else{
+				duty_cycle_pid = 0;
+			}
+      if(duty_cycle_pid > 14000){
+				duty_cycle_pid=14000;
 			}
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, duty_cycle_pid);
 			Ui_anterior=Ui_actual;
@@ -323,22 +331,28 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 			 */
 			error_vel_act2 = velocidad_consigna2-velocidadRPM2;
 
-			if(error_vel_act2<0 ){
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
-			}else if(error_vel_act2>0){
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
-			    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
-			}else if(error_vel_act2==0){
+//			if(error_vel_act2<0 ){
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
+//			}else if(error_vel_act2>0){
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
+//			    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
+//     }
+			if(stop2==1){
 				Ui_anterior2=0;
 			}
-//			error_vel_act2= fabs(error_vel_act2);
 			Up2=KP2 * error_vel_act2;
-			Ui_actual2=Ui_anterior2 + KI2 * deltaT * error_vel_act2;
+			Ui_actual2=Ui_anterior2 + KI2 * deltaT * error_vel_ant2;
 			Ud2=KD2/ deltaT * (error_vel_act2-error_vel_ant2);
-			duty_cycle_pid2 = (uint32_t) fabs(Up2 + Ui_actual2 + Ud2);
-			if(duty_cycle_pid2 > 11250){
-				duty_cycle_pid2=11250;
+			if(velocidad_consigna2 > 0){
+				duty_cycle_pid2 = (uint32_t) fabs(duty_cycle_pid2 +(Up2 + Ui_actual2 + Ud2));
+			}else if(velocidad_consigna2 < 0){
+				duty_cycle_pid2 = (uint32_t) fabs(duty_cycle_pid2 -(Up2 + Ui_actual2 + Ud2));
+			}else{
+				duty_cycle_pid2 = 0;
+			}
+			if(duty_cycle_pid2 > 14000){
+				duty_cycle_pid2=14000;
 			}
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, duty_cycle_pid2);
 			Ui_anterior2=Ui_actual2;
@@ -467,12 +481,12 @@ int main(void)
 	HAL_TIM_Encoder_Start_IT(&htim4, TIM_CHANNEL_ALL);
 
 	/*Se activa en sentido positivo del motor  1*/
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
 
 	/*Se activa el sentido positivo del motor 2*/
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
 	/*Se fuerza valor del contador del timer 3 y 4 para lecturas de encoders*/
 	__HAL_TIM_SET_COUNTER(&htim3,0);
 	__HAL_TIM_SET_COUNTER(&htim4,0);
@@ -665,7 +679,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 36000;
+  htim2.Init.Period = 15000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
