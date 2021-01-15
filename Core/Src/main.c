@@ -67,8 +67,8 @@ double error_vel_act = 0, error_vel_ant = 0;
 double error_vel_act2 = 0, error_vel_ant2 = 0;
 double velocidad_consigna=25;
 double velocidad_consigna2=-25;
-double KP1 = 20, KI1 = 1, KD1 = 4;
-double KP2 = 20, KI2 = 1, KD2 = 4;
+double KP1 = 20, KI1 = 2, KD1 = 4;
+double KP2 = 20, KI2 = 2, KD2 = 4;
 
 double Ui_anterior=0, Ui_actual=0; // para control integral
 double Up=0;
