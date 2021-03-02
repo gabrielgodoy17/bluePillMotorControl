@@ -45,7 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
@@ -65,10 +65,12 @@ double velocidadPulsos2 = 0, velocidadRPM2 = 0;
 //variables para control
 double error_vel_act = 0, error_vel_ant = 0;
 double error_vel_act2 = 0, error_vel_ant2 = 0;
-double velocidad_consigna=25;
-double velocidad_consigna2=-25;
+double velocidad_consigna=0;
+double velocidad_consigna2=0;
 float KP1 = 20, KI1 = 2, KD1 = 4;
 float KP2 = 20, KI2 = 2, KD2 = 4;
+//VARIABLE DE PRUEBA RECEPCION SPI
+float num_spi=0;
 
 double Ui_anterior=0, Ui_actual=0; // para control integral
 double Up=0;
@@ -93,7 +95,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
-static void MX_SPI1_Init(void);
+static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -380,49 +382,50 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
   * @brief  The application entry point.
   * @retval int
   */
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
-
-	  if (hspi->Instance == SPI1)
-	  {
-		  switch(byte){
-		  	  case ':': //Comienzo de la trama
-				  flagRx = 1;
-				  indRx = 0;
-				  //imprimir = 0;
-				  HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-				  break;
-		  	  case '\r': //Retorno, fin de trama.
-		  	  case ';':  //Fin de trama.
-		  		  HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-		  		  if(flagRx){
-		  			flagRx = 0;
-		  			buffer[indRx] = 0;
-		  			interpreteComando();
-		  		  }
-		  		  break;
-		  	  case 8: //Retroceso es permitido de esta manera.
-		  		  if(flagRx){
-		  			  if(indRx > 0){
-		  				indRx--;
-		  			  }
-		  		  }
-		  		  break;
-		  	  default: //Almacenamiento de la trama.
-		  		  HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-		  		  if(flagRx){
-		  			  buffer[indRx] = byte;
-		  			  if(indRx < MAX_BUFFER - 1){
-		  				indRx++;
-		  			  }
-
-		  		  }
-		  		break;
-		  }
-
-	    /* Receive one byte in interrupt mode */
-		 HAL_SPI_Receive_IT(&hspi1, &byte, 1);
-	  }
-}
+//void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
+//	num_spi=num_spi+10;
+//	  if (hspi->Instance == SPI2)
+//	  {
+//		  //num_spi=num_spi+10;
+//		  switch(byte){
+//		  	  case ':': //Comienzo de la trama
+//				  flagRx = 1;
+//				  indRx = 0;
+//				  //imprimir = 0;
+//				  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//				  break;
+//		  	  case '\r': //Retorno, fin de trama.
+//		  	  case ';':  //Fin de trama.
+//		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//		  		  if(flagRx){
+//		  			flagRx = 0;
+//		  			buffer[indRx] = 0;
+//		  			interpreteComando();
+//		  		  }
+//		  		  break;
+//		  	  case 8: //Retroceso es permitido de esta manera.
+//		  		  if(flagRx){
+//		  			  if(indRx > 0){
+//		  				indRx--;
+//		  			  }
+//		  		  }
+//		  		  break;
+//		  	  default: //Almacenamiento de la trama.
+//		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//		  		  if(flagRx){
+//		  			  buffer[indRx] = byte;
+//		  			  if(indRx < MAX_BUFFER - 1){
+//		  				indRx++;
+//		  			  }
+//
+//		  		  }
+//		  		break;
+//		  }
+//
+//	    /* Receive one byte in interrupt mode */
+//		 HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+//	  }
+//}
 /* USER CODE END 0 */
 
 /**
@@ -457,12 +460,12 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
-  MX_SPI1_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 
 	//RetargetInit(&huart2);
 	//HAL_UART_Receive_IT(&huart2, &byte, 1);
-    HAL_SPI_Receive_IT(&hspi1, &byte, 1);
+    //HAL_SPI_Receive_IT(&hspi2, &byte, 1);
 
 	HAL_TIM_Base_Start_IT(&htim1);
 	HAL_TIM_OC_Start_IT(&htim1, TIM_CHANNEL_1);
@@ -495,7 +498,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	byte=':';
+
 	while (1) {
+		HAL_SPI_Transmit(&hspi2, &byte, 1,1);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
 		HAL_Delay(100);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0);
@@ -546,40 +552,40 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief SPI1 Initialization Function
+  * @brief SPI2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_SPI1_Init(void)
+static void MX_SPI2_Init(void)
 {
 
-  /* USER CODE BEGIN SPI1_Init 0 */
+  /* USER CODE BEGIN SPI2_Init 0 */
 
-  /* USER CODE END SPI1_Init 0 */
+  /* USER CODE END SPI2_Init 0 */
 
-  /* USER CODE BEGIN SPI1_Init 1 */
+  /* USER CODE BEGIN SPI2_Init 1 */
 
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_SLAVE;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  /* USER CODE END SPI2_Init 1 */
+  /* SPI2 parameter configuration*/
+  hspi2.Instance = SPI2;
+  hspi2.Init.Mode = SPI_MODE_MASTER;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.NSS = SPI_NSS_HARD_OUTPUT;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi2.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN SPI1_Init 2 */
+  /* USER CODE BEGIN SPI2_Init 2 */
 
-  /* USER CODE END SPI1_Init 2 */
+  /* USER CODE END SPI2_Init 2 */
 
 }
 
@@ -679,7 +685,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 15000;
+  htim2.Init.Period = 36000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
