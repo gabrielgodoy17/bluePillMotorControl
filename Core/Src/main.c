@@ -499,9 +499,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	byte=':';
-
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 	while (1) {
+		//transmision spi
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
 		HAL_SPI_Transmit(&hspi2, &byte, 1,1);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
 		HAL_Delay(100);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0);
