@@ -390,6 +390,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
 		  	  case ':': //Comienzo de la trama
 				  flagRx = 1;
 				  indRx = 0;
+				  num_spi=num_spi+10;
 				  //imprimir = 0;
 //				  HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
 				  break;
