@@ -384,7 +384,7 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
 	  num_spi=num_spi+10;
 
-	  if (hspi->Instance == SPI1)
+	  if (hspi->Instance == SPI2)
 	  {
 		  switch(byte){
 		  	  case ':': //Comienzo de la trama

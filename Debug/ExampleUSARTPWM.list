@@ -2556,7 +2556,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
  800198c:	4b34      	ldr	r3, [pc, #208]	; (8001a60 <HAL_SPI_RxCpltCallback+0xec>)
  800198e:	601a      	str	r2, [r3, #0]
 
-	  if (hspi->Instance == SPI1)
+	  if (hspi->Instance == SPI2)
  8001990:	687b      	ldr	r3, [r7, #4]
  8001992:	681b      	ldr	r3, [r3, #0]
  8001994:	4a34      	ldr	r2, [pc, #208]	; (8001a68 <HAL_SPI_RxCpltCallback+0xf4>)
@@ -2704,7 +2704,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
  8001a5e:	bf00      	nop
  8001a60:	20000224 	.word	0x20000224
  8001a64:	41200000 	.word	0x41200000
- 8001a68:	40013000 	.word	0x40013000
+ 8001a68:	40003800 	.word	0x40003800
  8001a6c:	20000400 	.word	0x20000400
  8001a70:	2000038d 	.word	0x2000038d
  8001a74:	20000228 	.word	0x20000228
