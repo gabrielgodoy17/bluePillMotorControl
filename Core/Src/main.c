@@ -25,7 +25,6 @@
 #include "stdlib.h"
 #include <stdio.h>
 #include <inttypes.h>
-#include "retarget.h"
 #include "math.h"
 /* USER CODE END Includes */
 
@@ -45,12 +44,12 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+SPI_HandleTypeDef hspi2;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
-
-UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint8_t byte;
@@ -61,12 +60,13 @@ int contOUFlow = 0, pulsosAnt = 0, pulsosAct = 0;
 int contOUFlow2=0, pulsosAnt2=0, pulsosAct2 =0;
 double velocidadPulsos = 0, velocidadRPM = 0, deltaT = 0.01;
 double velocidadPulsos2 = 0, velocidadRPM2 = 0;
+int num_spi=0;
 
 //variables para control
 double error_vel_act = 0, error_vel_ant = 0;
 double error_vel_act2 = 0, error_vel_ant2 = 0;
-double velocidad_consigna=25;
-double velocidad_consigna2=-25;
+double velocidad_consigna=0;
+double velocidad_consigna2=0;
 double KP1 = 20, KI1 = 2, KD1 = 4;
 double KP2 = 20, KI2 = 2, KD2 = 4;
 
@@ -90,10 +90,10 @@ int stop2=1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -388,20 +388,17 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
   * @brief  The application entry point.
   * @retval int
   */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
-	  if (huart->Instance == USART2)
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
+	num_spi=num_spi+10;
+	  if (hspi->Instance == SPI2)
 	  {
 		  switch(byte){
 		  	  case ':': //Comienzo de la trama
 		  		  flagRx = 1;
 		  		  indRx = 0;
-		  		  //imprimir = 0;
-		  		  HAL_UART_Transmit(&huart2, &byte, 1, 100);
 		  		  break;
 		  	  case '\r': //Retorno, fin de trama.
 		  	  case ';':  //Fin de trama.
-		  		HAL_UART_Transmit(&huart2, &byte, 1, 100);
 		  		  if(flagRx){
 		  			flagRx = 0;
 		  			buffer[indRx] = 0;
@@ -416,7 +413,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		  		  }
 		  		  break;
 		  	  default: //Almacenamiento de la trama.
-		  		HAL_UART_Transmit(&huart2, &byte, 1, 100);
 		  		  if(flagRx){
 		  			  buffer[indRx] = byte;
 		  			  if(indRx < MAX_BUFFER - 1){
@@ -428,7 +424,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		  }
 
 	    /* Receive one byte in interrupt mode */
-	    HAL_UART_Receive_IT(&huart2, &byte, 1);
+		  HAL_SPI_Receive_IT(&hspi2, &byte, 1);
 	  }
 }
 /* USER CODE END 0 */
@@ -462,14 +458,14 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM2_Init();
-  MX_USART2_UART_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 
-	RetargetInit(&huart2);
-	HAL_UART_Receive_IT(&huart2, &byte, 1);
+	//HAL_UART_Receive_IT(&huart2, &byte, 1);
+  	HAL_SPI_Receive_IT(&hspi2, &byte, 1);
 
 	HAL_TIM_Base_Start_IT(&htim1);
 	HAL_TIM_OC_Start_IT(&htim1, TIM_CHANNEL_1);
@@ -550,6 +546,44 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief SPI2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI2_Init(void)
+{
+
+  /* USER CODE BEGIN SPI2_Init 0 */
+
+  /* USER CODE END SPI2_Init 0 */
+
+  /* USER CODE BEGIN SPI2_Init 1 */
+
+  /* USER CODE END SPI2_Init 1 */
+  /* SPI2 parameter configuration*/
+  hspi2.Instance = SPI2;
+  hspi2.Init.Mode = SPI_MODE_SLAVE;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.NSS = SPI_NSS_HARD_INPUT;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi2.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI2_Init 2 */
+
+  /* USER CODE END SPI2_Init 2 */
+
 }
 
 /**
@@ -784,39 +818,6 @@ static void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 2 */
 
   /* USER CODE END TIM4_Init 2 */
-
-}
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
 
 }
 
