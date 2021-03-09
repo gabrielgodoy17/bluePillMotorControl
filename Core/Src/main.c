@@ -498,13 +498,21 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	uint8_t intBuffer[10] = {':','w','1','+','2','5','\n'};
+	buffer[0]=':';
+	buffer[1]='w';
+	buffer[2]='1';
+	buffer[3]='+';
+	buffer[4]='2';
+	buffer[5]='5';
+	buffer[6]='\n';
 	byte=':';
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 	while (1) {
 		//transmision spi
 
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
-		HAL_SPI_Transmit(&hspi2, &byte, 1,1);
+		HAL_SPI_Transmit(&hspi2, &intBuffer[0], 7,1);
 		HAL_Delay(100);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 
