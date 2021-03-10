@@ -1817,10 +1817,10 @@ int main(void)
  8001246:	f44f 5180 	mov.w	r1, #4096	; 0x1000
  800124a:	4818      	ldr	r0, [pc, #96]	; (80012ac <main+0x120>)
  800124c:	f001 f90c 	bl	8002468 <HAL_GPIO_WritePin>
-		HAL_SPI_Transmit(&hspi2, intBuffer, 7,1);
+		HAL_SPI_Transmit(&hspi2, intBuffer, 14,1);
  8001250:	4639      	mov	r1, r7
  8001252:	2301      	movs	r3, #1
- 8001254:	2207      	movs	r2, #7
+ 8001254:	220e      	movs	r2, #14
  8001256:	4816      	ldr	r0, [pc, #88]	; (80012b0 <main+0x124>)
  8001258:	f001 fd8c 	bl	8002d74 <HAL_SPI_Transmit>
 		HAL_Delay(100);

@@ -504,7 +504,7 @@ int main(void)
 		//transmision spi
 
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
-		HAL_SPI_Transmit(&hspi2, intBuffer, 7,1);
+		HAL_SPI_Transmit(&hspi2, intBuffer, 14,1);
 		HAL_Delay(100);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 
