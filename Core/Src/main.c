@@ -498,7 +498,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint8_t intBuffer[7] = {':','w','1','+','2','5',';'};
+	uint8_t intBuffer[14] = {':','w','1','+','2','5',';',':','w','2','+','2','5',';'};
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 	while (1) {
 		//transmision spi
