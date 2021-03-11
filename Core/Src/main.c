@@ -62,6 +62,9 @@ double velocidadPulsos = 0, velocidadRPM = 0, deltaT = 0.01;
 double velocidadPulsos2 = 0, velocidadRPM2 = 0;
 int num_spi=0;
 
+uint8_t out_buffer[14] = {':','w','1','-','2','5',';',':','w','2','-','2','5',';'};
+
+
 //variables para control
 double error_vel_act = 0, error_vel_ant = 0;
 double error_vel_act2 = 0, error_vel_ant2 = 0;
@@ -280,6 +283,10 @@ void interpreteComando(){
 
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM1){
+
+		/*Transmit velocidad*/
+		HAL_SPI_Transmit_IT(&hspi2, out_buffer, 14);
+
 		//pulsosAct = contOUFlow*(htim3.Instance->ARR) + __HAL_TIM_GET_COUNTER(&htim3);
 		pulsosAct = (contOUFlow*65000) + __HAL_TIM_GET_COUNTER(&htim3);
 		velocidadPulsos = (pulsosAct - pulsosAnt)/deltaT;
