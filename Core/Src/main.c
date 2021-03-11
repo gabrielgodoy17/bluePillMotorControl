@@ -106,7 +106,7 @@ void interpreteComando(){
 
 	//uint32_t duty_cycle;
 	double consigna;
-
+    num_spi=num_spi+20;
 	switch (in_buffer[0]) {
 	case 'W':
 	case 'w':
@@ -381,7 +381,7 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
   * @brief  The application entry point.
   * @retval int
   */
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi){
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
 	num_spi=num_spi+10;
 	  if (hspi->Instance == SPI2)
 	  {
@@ -422,7 +422,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi){
 		  }
 
 	    /* Receive one byte in interrupt mode */
-		 //HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+		 HAL_SPI_Receive_IT(&hspi2, &byte, 1);
 	  }
 }
 /* USER CODE END 0 */
@@ -499,11 +499,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	uint8_t out_buffer[14] = {':','w','1','+','2','5',';',':','w','2','+','2','5',';'};
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+	HAL_SPI_Receive_IT(&hspi2, in_buffer, 14);
+
 	while (1) {
 		//transmision spi
 
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
-		HAL_SPI_TransmitReceive_IT(&hspi2, out_buffer, in_buffer, 14);
+		//HAL_SPI_TransmitReceive_IT(&hspi2, out_buffer, in_buffer, 14);
+		HAL_SPI_Transmit(&hspi2, out_buffer, 14, 1);
+
 		HAL_Delay(100);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 
