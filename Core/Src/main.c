@@ -36,7 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define MAX_BUFFER 40
+#define MAX_BUFFER 14
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,7 +56,7 @@ TIM_HandleTypeDef htim4;
 uint8_t byte;
 //uint8_t byte,
 uint8_t indRx=0, flagRx, imprimir = 1, sentido;
-char buffer[MAX_BUFFER];
+uint8_t in_buffer[MAX_BUFFER];
 int contOUFlow = 0, pulsosAnt = 0, pulsosAct = 0;
 int contOUFlow2=0, pulsosAnt2=0, pulsosAct2 =0;
 double velocidadPulsos = 0, velocidadRPM = 0, deltaT = 0.01;
@@ -107,75 +107,74 @@ void interpreteComando(){
 	//uint32_t duty_cycle;
 	double consigna;
 
-	switch (buffer[0]) {
+	switch (in_buffer[0]) {
 	case 'W':
 	case 'w':
-		switch (buffer[1]) {
+		switch (in_buffer[1]) {
 		/*codigo ascii de '1' = 49*/
 		case 49:
-			if (buffer[2]) {
+			if (in_buffer[2]) {
 				/*codigo ascii de '+' = 43*/
-				if (buffer[2] == 43) {
+				if (in_buffer[2] == 43) {
 					stop1=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-					if (buffer[3]) {
-						consigna = atof(&buffer[3]);
+					if (in_buffer[3]) {
+						consigna = atof((char*)&in_buffer[3]);
 						if (consigna < 35) {
 							velocidad_consigna = consigna;
 						} else {
 							velocidad_consigna = 35;
 						}
-						printf("\r\n Velocidad consigna motor 1 : %s %5.3f \r\n","+", velocidad_consigna);
+						//printf("\r\n Velocidad consigna motor 1 : %s %5.3f \r\n","+", velocidad_consigna);
 					}
 					/*codigo ascii de '-' = 45*/
-				} else if (buffer[2] == 45) {
+				} else if (in_buffer[2] == 45) {
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 					stop1=0;
-					if (buffer[3]) {
-						consigna = atof(&buffer[3]);
+					if (in_buffer[3]) {
+						consigna = atof((char*)&in_buffer[3]);
 						if (consigna < 35) {
 							velocidad_consigna = -consigna;
 						} else {
 							velocidad_consigna = -35;
 						}
-						printf("\r\n Velocidad consigna motor 1 : %5.3f \r\n", velocidad_consigna);
+						//printf("\r\n Velocidad consigna motor 1 : %5.3f \r\n", velocidad_consigna);
 					}
 					/*codigo ascii de '0' = 48*/
-				}else if(buffer[2] == 48){
+				}else if(in_buffer[2] == 48){
 					velocidad_consigna=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 					stop1=1;
-					printf("\r\n Velocidad consigna motor 1 : %5.3f \r\n", velocidad_consigna);
+					//printf("\r\n Velocidad consigna motor 1 : %5.3f \r\n", velocidad_consigna);
 
 				}
 			}
 			break;
 			/*codigo ascii de '2' = 50*/
 		case 50:
-			if (buffer[2]) {
-				if (buffer[2] == 43) {
+			if (in_buffer[2]) {
+				if (in_buffer[2] == 43) {
 					stop2=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
-					if (buffer[3]) {
-						consigna = atof(&buffer[3]);
+					if (in_buffer[3]) {
+						consigna = atof((char*)&in_buffer[3]);
 						if (consigna < 35) {
 							velocidad_consigna2 = consigna;
 						} else {
 							velocidad_consigna2 = 35;
 						}
-						printf(
-								"\r\n Velocidad consigna motor 2 :  %s %5.3f \r\n","+", velocidad_consigna2);
+						//printf("\r\n Velocidad consigna motor 2 :  %s %5.3f \r\n","+", velocidad_consigna2);
 					}
-				} else if (buffer[2] == 45) {
+				} else if (in_buffer[2] == 45) {
 					stop2=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
-					if (buffer[3]) {
-						consigna = atof(&buffer[3]);
+					if (in_buffer[3]) {
+						consigna = atof((char*)&in_buffer[3]);
 						if( consigna==0){
 							velocidad_consigna2=0;
 						}else if (consigna < 35) {
@@ -183,14 +182,14 @@ void interpreteComando(){
 						} else {
 							velocidad_consigna2 = -35;
 						}
-						printf("\r\n Velocidad consigna motor 2 :  %5.3f \r\n",velocidad_consigna2);
+						//printf("\r\n Velocidad consigna motor 2 :  %5.3f \r\n",velocidad_consigna2);
 					}
-				}else if(buffer[2] == 48){
+				}else if(in_buffer[2] == 48){
 					velocidad_consigna2=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
 					stop2=0;
-					printf("\r\n Velocidad consigna motor 2 :  %5.3f \r\n",velocidad_consigna2);
+					//printf("\r\n Velocidad consigna motor 2 :  %5.3f \r\n",velocidad_consigna2);
 				}
 			}
 			break;
@@ -211,62 +210,62 @@ void interpreteComando(){
 //			break;
 		case 'p':
 		case 'P':
-			switch (buffer[1]) {
+			switch (in_buffer[1]) {
 					/*codigo ascii de '1' = 49*/
 					case 49:
-						consigna = atof(&buffer[2]);
+						consigna = atof((char *) &in_buffer[2]);
 						KP1=(float) consigna;
-						printf("\r\n");
+						//printf("\r\n");
 						break;
 					/*codigo ascii de '2' = 50*/
 					case 50:
-						consigna = atof(&buffer[2]);
+						consigna = atof((char *) &in_buffer[2]);
 						KP2=(float) consigna;
-						printf("\r\n");
+						//printf("\r\n");
 						break;
 					default:
-					printf("\r\n Por favor indicar el valor correcto ( 1 ó 2 )\r\n");
+					//printf("\r\n Por favor indicar el valor correcto ( 1 ó 2 )\r\n");
 					break;
 
 			}
 			break;
 		case 'i':
 		case 'I':
-			switch (buffer[1]) {
+			switch (in_buffer[1]) {
 					/*codigo ascii de '1' = 49*/
 					case 49:
-						consigna = atof(&buffer[2]);
+						consigna = atof((char *)&in_buffer[2]);
 						KI1=(float) consigna;
-						printf("\r\n");
+						//printf("\r\n");
 						break;
 					/*codigo ascii de '2' = 50*/
 					case 50:
-						consigna = atof(&buffer[2]);
+						consigna = atof((char *)&in_buffer[2]);
 						KI2=(float) consigna;
-						printf("\r\n");
+						//printf("\r\n");
 						break;
 					default:
-						printf("\r\n Por favor indicar el valor correcto ( 1 ó 2 )\r\n");
+						//printf("\r\n Por favor indicar el valor correcto ( 1 ó 2 )\r\n");
 						break;
 			}
 			break;
 		case 'd':
 		case 'D':
-			switch (buffer[1]) {
+			switch (in_buffer[1]) {
 					/*codigo ascii de '1' = 49*/
 					case 49:
-						consigna = atof(&buffer[2]);
+						consigna = atof((char *)&in_buffer[2]);
 						KD1=(float) consigna;
-						printf("\r\n");
+						//printf("\r\n");
 						break;
 					/*codigo ascii de '2' = 50*/
 					case 50:
-						consigna = atof(&buffer[2]);
+						consigna = atof((char *)&in_buffer[2]);
 						KD2=(float) consigna;
-						printf("\r\n");
+						//printf("\r\n");
 						break;
 					default:
-						printf("\r\n Por favor indicar el valor correcto ( 1 ó 2 )\r\n");
+						//printf("\r\n Por favor indicar el valor correcto ( 1 ó 2 )\r\n");
 						break;
 			}
 			break;
@@ -382,50 +381,50 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
   * @brief  The application entry point.
   * @retval int
   */
-//void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
-//	num_spi=num_spi+10;
-//	  if (hspi->Instance == SPI2)
-//	  {
-//		  //num_spi=num_spi+10;
-//		  switch(byte){
-//		  	  case ':': //Comienzo de la trama
-//				  flagRx = 1;
-//				  indRx = 0;
-//				  //imprimir = 0;
-//				  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-//				  break;
-//		  	  case '\r': //Retorno, fin de trama.
-//		  	  case ';':  //Fin de trama.
-//		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-//		  		  if(flagRx){
-//		  			flagRx = 0;
-//		  			buffer[indRx] = 0;
-//		  			interpreteComando();
-//		  		  }
-//		  		  break;
-//		  	  case 8: //Retroceso es permitido de esta manera.
-//		  		  if(flagRx){
-//		  			  if(indRx > 0){
-//		  				indRx--;
-//		  			  }
-//		  		  }
-//		  		  break;
-//		  	  default: //Almacenamiento de la trama.
-//		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-//		  		  if(flagRx){
-//		  			  buffer[indRx] = byte;
-//		  			  if(indRx < MAX_BUFFER - 1){
-//		  				indRx++;
-//		  			  }
-//
-//		  		  }
-//		  		break;
-//		  }
-//
-//	    /* Receive one byte in interrupt mode */
-//		 HAL_SPI_Receive_IT(&hspi2, &byte, 1);
-//	  }
-//}
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi){
+	num_spi=num_spi+10;
+	  if (hspi->Instance == SPI2)
+	  {
+		  //num_spi=num_spi+10;
+		  switch(byte){
+		  	  case ':': //Comienzo de la trama
+				  flagRx = 1;
+				  indRx = 0;
+				  //imprimir = 0;
+				  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+				  break;
+		  	  case '\r': //Retorno, fin de trama.
+		  	  case ';':  //Fin de trama.
+		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+		  		  if(flagRx){
+		  			flagRx = 0;
+		  			in_buffer[indRx] = 0;
+		  			interpreteComando();
+		  		  }
+		  		  break;
+		  	  case 8: //Retroceso es permitido de esta manera.
+		  		  if(flagRx){
+		  			  if(indRx > 0){
+		  				indRx--;
+		  			  }
+		  		  }
+		  		  break;
+		  	  default: //Almacenamiento de la trama.
+		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+		  		  if(flagRx){
+		  			  in_buffer[indRx] = byte;
+		  			  if(indRx < MAX_BUFFER - 1){
+		  				indRx++;
+		  			  }
+
+		  		  }
+		  		break;
+		  }
+
+	    /* Receive one byte in interrupt mode */
+		 //HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+	  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -498,13 +497,13 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint8_t intBuffer[14] = {':','w','1','+','2','5',';',':','w','2','+','2','5',';'};
+	uint8_t out_buffer[14] = {':','w','1','+','2','5',';',':','w','2','+','2','5',';'};
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 	while (1) {
 		//transmision spi
 
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
-		HAL_SPI_Transmit(&hspi2, intBuffer, 14,1);
+		HAL_SPI_TransmitReceive_IT(&hspi2, out_buffer, in_buffer, 14);
 		HAL_Delay(100);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 
