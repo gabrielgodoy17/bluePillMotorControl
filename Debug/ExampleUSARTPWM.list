@@ -37,17 +37,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  16 .debug_macro  00018614  00000000  00000000  0002f028  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   000094e2  00000000  00000000  0004763c  2**0
+ 17 .debug_line   000094e6  00000000  00000000  0004763c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    0008b7f0  00000000  00000000  00050b1e  2**0
+ 18 .debug_str    0008b7f0  00000000  00000000  00050b22  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  000dc30e  2**0
+ 19 .comment      0000007b  00000000  00000000  000dc312  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00004420  00000000  00000000  000dc38c  2**2
+ 20 .debug_frame  00004420  00000000  00000000  000dc390  2**2
                   CONTENTS, READONLY, DEBUGGING
- 21 .stab         0000009c  00000000  00000000  000e07ac  2**2
+ 21 .stab         0000009c  00000000  00000000  000e07b0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 22 .stabstr      0000014d  00000000  00000000  000e0848  2**0
+ 22 .stabstr      0000014d  00000000  00000000  000e084c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -1035,7 +1035,7 @@ void interpreteComando(){
 		case 63:
 			/*Transmit velocidad*/
 		    HAL_SPI_Transmit_IT(&hspi2, out_buffer, 14);
-
+		    break;
 		}
 			break;
  8000c64:	e21d      	b.n	80010a2 <interpreteComando+0x53a>
@@ -1377,8 +1377,8 @@ void interpreteComando(){
  8000f40:	4962      	ldr	r1, [pc, #392]	; (80010cc <interpreteComando+0x564>)
  8000f42:	4863      	ldr	r0, [pc, #396]	; (80010d0 <interpreteComando+0x568>)
  8000f44:	f002 fa6a 	bl	800341c <HAL_SPI_Transmit_IT>
-			break;
- 8000f48:	e0ab      	b.n	80010a2 <interpreteComando+0x53a>
+		    break;
+ 8000f48:	e002      	b.n	8000f50 <interpreteComando+0x3e8>
 			break;
  8000f4a:	bf00      	nop
  8000f4c:	e0a9      	b.n	80010a2 <interpreteComando+0x53a>

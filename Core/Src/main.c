@@ -199,7 +199,7 @@ void interpreteComando(){
 		case 63:
 			/*Transmit velocidad*/
 		    HAL_SPI_Transmit_IT(&hspi2, out_buffer, 14);
-
+		    break;
 		}
 			break;
 
