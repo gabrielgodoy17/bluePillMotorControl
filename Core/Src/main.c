@@ -195,6 +195,11 @@ void interpreteComando(){
 				}
 			}
 			break;
+		/*codigo ascii simbolo '?' = 63 */
+		case 63:
+			/*Transmit velocidad*/
+		    HAL_SPI_Transmit_IT(&hspi2, out_buffer, 14);
+
 		}
 			break;
 
@@ -284,8 +289,7 @@ void interpreteComando(){
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM1){
 
-		/*Transmit velocidad*/
-		HAL_SPI_Transmit(&hspi2, out_buffer, 14, 1);
+
 
 		//pulsosAct = contOUFlow*(htim3.Instance->ARR) + __HAL_TIM_GET_COUNTER(&htim3);
 		pulsosAct = (contOUFlow*65000) + __HAL_TIM_GET_COUNTER(&htim3);
@@ -390,6 +394,9 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
 			printf("overflow motor 2 \r\n");
 		}
 	}
+}
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi){
+
 }
 /**
   * @brief  The application entry point.
