@@ -61,8 +61,8 @@ int contOUFlow2=0, pulsosAnt2=0, pulsosAct2 =0;
 double velocidadPulsos = 0, velocidadRPM = 0, deltaT = 0.01;
 double velocidadPulsos2 = 0, velocidadRPM2 = 0;
 int num_spi=0;
-
-uint8_t out_buffer[14] = {':','w','1','-','2','5',';',':','w','2','-','2','5',';'};
+int indexBuf=0;
+uint8_t out_buffer[40] = {':','w','1','-','2','5',';',':','w','2','-','2','5',';'};
 
 
 //variables para control
@@ -198,7 +198,9 @@ void interpreteComando(){
 		/*codigo ascii simbolo '?' = 63 */
 		case 63:
 			/*Transmit velocidad*/
-		    HAL_SPI_Transmit_IT(&hspi2, out_buffer, 14);
+			indexBuf=0;
+		   // HAL_SPI_TransmitReceive_IT(&hspi2, &out_buffer[indexBuf], &byte, 1);
+		    //HAL__IT(&hspi2, out_buffer, 14);
 		    break;
 		}
 			break;
@@ -436,8 +438,9 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
 		  		  }
 		  		break;
 		  }
-
+		  indexBuf++;
 	    /* Receive one byte in interrupt mode */
+		  //HAL_SPI_TransmitReceive_IT(&hspi2, &out_buffer[indexBuf], &byte, 1);
 		  HAL_SPI_Receive_IT(&hspi2, &byte, 1);
 	  }
 }
