@@ -106,20 +106,23 @@ void interpreteComando(){
 
 	//uint32_t duty_cycle;
 	double consigna;
-    num_spi=num_spi+20;
-	switch (in_buffer[0]) {
+	switch (in_buffer[1]) {
+
 	case 'W':
 	case 'w':
-		switch (in_buffer[1]) {
+
+	    num_spi=num_spi+20;
+		switch (in_buffer[2]) {
 		/*codigo ascii de '1' = 49*/
 		case 49:
-			if (in_buffer[2]) {
+			if (in_buffer[3]) {
 				/*codigo ascii de '+' = 43*/
-				if (in_buffer[2] == 43) {
+				if (in_buffer[4] == 43) {
 					stop1=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-					if (in_buffer[3]) {
+					num_spi=num_spi+5;
+					if (in_buffer[4]) {
 						consigna = atof((char*)&in_buffer[3]);
 						if (consigna < 35) {
 							velocidad_consigna = consigna;
@@ -129,11 +132,12 @@ void interpreteComando(){
 						//printf("\r\n Velocidad consigna motor 1 : %s %5.3f \r\n","+", velocidad_consigna);
 					}
 					/*codigo ascii de '-' = 45*/
-				} else if (in_buffer[2] == 45) {
+				} else if (in_buffer[3] == 45) {
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 					stop1=0;
-					if (in_buffer[3]) {
+					num_spi=num_spi+5;
+					if (in_buffer[4]) {
 						consigna = atof((char*)&in_buffer[3]);
 						if (consigna < 35) {
 							velocidad_consigna = -consigna;
@@ -143,7 +147,7 @@ void interpreteComando(){
 						//printf("\r\n Velocidad consigna motor 1 : %5.3f \r\n", velocidad_consigna);
 					}
 					/*codigo ascii de '0' = 48*/
-				}else if(in_buffer[2] == 48){
+				}else if(in_buffer[3] == 48){
 					velocidad_consigna=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
@@ -155,12 +159,13 @@ void interpreteComando(){
 			break;
 			/*codigo ascii de '2' = 50*/
 		case 50:
-			if (in_buffer[2]) {
-				if (in_buffer[2] == 43) {
+			if (in_buffer[3]) {
+				if (in_buffer[3] == 43) {
 					stop2=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
-					if (in_buffer[3]) {
+					num_spi=num_spi+5;
+					if (in_buffer[4]) {
 						consigna = atof((char*)&in_buffer[3]);
 						if (consigna < 35) {
 							velocidad_consigna2 = consigna;
@@ -169,11 +174,12 @@ void interpreteComando(){
 						}
 						//printf("\r\n Velocidad consigna motor 2 :  %s %5.3f \r\n","+", velocidad_consigna2);
 					}
-				} else if (in_buffer[2] == 45) {
+				} else if (in_buffer[3] == 45) {
 					stop2=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 0);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
-					if (in_buffer[3]) {
+					num_spi=num_spi+5;
+					if (in_buffer[4]) {
 						consigna = atof((char*)&in_buffer[3]);
 						if( consigna==0){
 							velocidad_consigna2=0;
@@ -184,7 +190,7 @@ void interpreteComando(){
 						}
 						//printf("\r\n Velocidad consigna motor 2 :  %5.3f \r\n",velocidad_consigna2);
 					}
-				}else if(in_buffer[2] == 48){
+				}else if(in_buffer[3] == 48){
 					velocidad_consigna2=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
@@ -383,46 +389,47 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
   */
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
 	num_spi=num_spi+10;
-	  if (hspi->Instance == SPI2)
-	  {
-		  //num_spi=num_spi+10;
-		  switch(byte){
-		  	  case ':': //Comienzo de la trama
-				  flagRx = 1;
-				  indRx = 0;
-				  //imprimir = 0;
-				  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-				  break;
-		  	  case '\r': //Retorno, fin de trama.
-		  	  case ';':  //Fin de trama.
-		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-		  		  if(flagRx){
-		  			flagRx = 0;
-		  			in_buffer[indRx] = 0;
-		  			interpreteComando();
-		  		  }
-		  		  break;
-		  	  case 8: //Retroceso es permitido de esta manera.
-		  		  if(flagRx){
-		  			  if(indRx > 0){
-		  				indRx--;
-		  			  }
-		  		  }
-		  		  break;
-		  	  default: //Almacenamiento de la trama.
-		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
-		  		  if(flagRx){
-		  			  in_buffer[indRx] = byte;
-		  			  if(indRx < MAX_BUFFER - 1){
-		  				indRx++;
-		  			  }
-
-		  		  }
-		  		break;
-		  }
+	  if (hspi->Instance == SPI2){
+		  interpreteComando();
+//		  //num_spi=num_spi+10;
+//		  switch(byte){
+//		  	  case ':': //Comienzo de la trama
+//				  flagRx = 1;
+//				  indRx = 0;
+//				  //imprimir = 0;
+//				  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//				  break;
+//		  	  case '\r': //Retorno, fin de trama.
+//		  	  case ';':  //Fin de trama.
+//		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//		  		  if(flagRx){
+//		  			flagRx = 0;
+//		  			in_buffer[indRx] = 0;
+//		  			interpreteComando();
+//		  		  }
+//		  		  break;
+//		  	  case 8: //Retroceso es permitido de esta manera.
+//		  		  if(flagRx){
+//		  			  if(indRx > 0){
+//		  				indRx--;
+//		  			  }
+//		  		  }
+//		  		  break;
+//		  	  default: //Almacenamiento de la trama.
+//		  		  //HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//		  		  if(flagRx){
+//		  			  in_buffer[indRx] = byte;
+//		  			  if(indRx < MAX_BUFFER - 1){
+//		  				indRx++;
+//		  			  }
+//
+//		  		  }
+//		  		break;
+//		  }
 
 	    /* Receive one byte in interrupt mode */
-		HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+		//HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+		  HAL_SPI_Receive_IT(&hspi2, in_buffer, 14);
 	  }
 }
 /* USER CODE END 0 */
@@ -500,16 +507,18 @@ int main(void)
 	uint8_t out_buffer[17] = {':','w','1','+','2','5',';',':','w','2','+','2','5',';',':','w','?'};
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 	//HAL_SPI_Receive_IT(&hspi2, in_buffer, 14);
-	HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+	//HAL_SPI_Receive_IT(&hspi2, &byte, 1);
+	//HAL_SPI_Receive_IT(&hspi2, in_buffer, 14);
 	while (1) {
 		//transmision spi
 
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
 		//HAL_SPI_TransmitReceive_IT(&hspi2, out_buffer, in_buffer, 14);
 		HAL_SPI_Transmit(&hspi2, out_buffer, 17, 1);
-		//HAL_SPI_Receive_IT(&hspi2, in_buffer, 14);
+		HAL_SPI_Receive(&hspi2, in_buffer, 14, 1);
+		interpreteComando();
 		HAL_Delay(1000);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+		//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
 		HAL_Delay(100);
