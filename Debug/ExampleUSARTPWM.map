@@ -3216,8 +3216,8 @@ LOAD /opt/st/stm32cubeide_1.5.0/plugins/com.st.stm32cube.ide.mcu.externaltools.g
 .rodata         0x0000000008008f60      0x370
                 0x0000000008008f60                . = ALIGN (0x4)
  *(.rodata)
- .rodata        0x0000000008008f60       0x61 Core/Src/main.o
- *fill*         0x0000000008008fc1        0x3 
+ .rodata        0x0000000008008f60       0x62 Core/Src/main.o
+ *fill*         0x0000000008008fc2        0x2 
  .rodata        0x0000000008008fc4       0x12 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
  *(.rodata*)
  *fill*         0x0000000008008fd6        0x2 
