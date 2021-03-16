@@ -515,10 +515,10 @@ int main(void)
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0);
 		//HAL_SPI_TransmitReceive_IT(&hspi2, out_buffer, in_buffer, 14);
 		HAL_SPI_Transmit(&hspi2, out_buffer, 18, 1);
-		HAL_SPI_Receive(&hspi2, in_buffer, 14, 1);
+		//HAL_SPI_Receive(&hspi2, in_buffer, 14, 1);
 		interpreteComando();
 		HAL_Delay(1000);
-		//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1);
 
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
 		HAL_Delay(100);
