@@ -117,13 +117,13 @@ void interpreteComando(){
 		case 49:
 			if (in_buffer[3]) {
 				/*codigo ascii de '+' = 43*/
-				if (in_buffer[4] == 43) {
+				if (in_buffer[3] == 43) {
 					stop1=0;
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
 					num_spi=num_spi+5;
 					if (in_buffer[4]) {
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
 						if (consigna < 35) {
 							velocidad_consigna = consigna;
 						} else {
@@ -138,7 +138,7 @@ void interpreteComando(){
 					stop1=0;
 					num_spi=num_spi+5;
 					if (in_buffer[4]) {
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
 						if (consigna < 35) {
 							velocidad_consigna = -consigna;
 						} else {
@@ -166,7 +166,7 @@ void interpreteComando(){
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 0);
 					num_spi=num_spi+5;
 					if (in_buffer[4]) {
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
 						if (consigna < 35) {
 							velocidad_consigna2 = consigna;
 						} else {
@@ -180,7 +180,7 @@ void interpreteComando(){
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, 1);
 					num_spi=num_spi+5;
 					if (in_buffer[4]) {
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
 						if( consigna==0){
 							velocidad_consigna2=0;
 						}else if (consigna < 35) {

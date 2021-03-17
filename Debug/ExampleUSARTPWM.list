@@ -1248,9 +1248,9 @@ void interpreteComando(){
  8000e92:	78db      	ldrb	r3, [r3, #3]
  8000e94:	2b00      	cmp	r3, #0
  8000e96:	f000 8160 	beq.w	800115a <interpreteComando+0x3d6>
-				if (in_buffer[4] == 43) {
+				if (in_buffer[3] == 43) {
  8000e9a:	4b6d      	ldr	r3, [pc, #436]	; (8001050 <interpreteComando+0x2cc>)
- 8000e9c:	791b      	ldrb	r3, [r3, #4]
+ 8000e9c:	78db      	ldrb	r3, [r3, #3]
  8000e9e:	2b2b      	cmp	r3, #43	; 0x2b
  8000ea0:	d137      	bne.n	8000f12 <interpreteComando+0x18e>
 					stop1=0;
@@ -1282,7 +1282,7 @@ void interpreteComando(){
  8000ed2:	791b      	ldrb	r3, [r3, #4]
  8000ed4:	2b00      	cmp	r3, #0
  8000ed6:	f000 8140 	beq.w	800115a <interpreteComando+0x3d6>
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
  8000eda:	4863      	ldr	r0, [pc, #396]	; (8001068 <interpreteComando+0x2e4>)
  8000edc:	f004 f92b 	bl	8005136 <atof>
  8000ee0:	e9c7 0102 	strd	r0, r1, [r7, #8]
@@ -1341,7 +1341,7 @@ void interpreteComando(){
  8000f4a:	791b      	ldrb	r3, [r3, #4]
  8000f4c:	2b00      	cmp	r3, #0
  8000f4e:	f000 8104 	beq.w	800115a <interpreteComando+0x3d6>
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
  8000f52:	4845      	ldr	r0, [pc, #276]	; (8001068 <interpreteComando+0x2e4>)
  8000f54:	f004 f8ef 	bl	8005136 <atof>
  8000f58:	e9c7 0102 	strd	r0, r1, [r7, #8]
@@ -1436,7 +1436,7 @@ void interpreteComando(){
  8001010:	791b      	ldrb	r3, [r3, #4]
  8001012:	2b00      	cmp	r3, #0
  8001014:	f000 80a3 	beq.w	800115e <interpreteComando+0x3da>
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
  8001018:	4813      	ldr	r0, [pc, #76]	; (8001068 <interpreteComando+0x2e4>)
  800101a:	f004 f88c 	bl	8005136 <atof>
  800101e:	e9c7 0102 	strd	r0, r1, [r7, #8]
@@ -1467,7 +1467,7 @@ void interpreteComando(){
  800105c:	20000024 	.word	0x20000024
  8001060:	40010800 	.word	0x40010800
  8001064:	40a00000 	.word	0x40a00000
- 8001068:	20000393 	.word	0x20000393
+ 8001068:	20000394 	.word	0x20000394
  800106c:	40418000 	.word	0x40418000
  8001070:	20000280 	.word	0x20000280
  8001074:	c0418000 	.word	0xc0418000
@@ -1507,7 +1507,7 @@ void interpreteComando(){
  80010bc:	791b      	ldrb	r3, [r3, #4]
  80010be:	2b00      	cmp	r3, #0
  80010c0:	d04d      	beq.n	800115e <interpreteComando+0x3da>
-						consigna = atof((char*)&in_buffer[3]);
+						consigna = atof((char*)&in_buffer[4]);
  80010c2:	4862      	ldr	r0, [pc, #392]	; (800124c <interpreteComando+0x4c8>)
  80010c4:	f004 f837 	bl	8005136 <atof>
  80010c8:	e9c7 0102 	strd	r0, r1, [r7, #8]
@@ -1731,7 +1731,7 @@ void interpreteComando(){
  8001240:	40010800 	.word	0x40010800
  8001244:	20000290 	.word	0x20000290
  8001248:	40a00000 	.word	0x40a00000
- 800124c:	20000393 	.word	0x20000393
+ 800124c:	20000394 	.word	0x20000394
  8001250:	20000288 	.word	0x20000288
  8001254:	40418000 	.word	0x40418000
  8001258:	c0418000 	.word	0xc0418000
